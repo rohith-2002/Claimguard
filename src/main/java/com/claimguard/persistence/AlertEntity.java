@@ -4,6 +4,7 @@ import com.claimguard.api.dto.ClaimRequest;
 import com.claimguard.api.dto.ScreeningResponse;
 import com.claimguard.domain.AlertStatus;
 import com.claimguard.domain.LineOfBusiness;
+import com.claimguard.domain.TriggeredRule;
 import com.claimguard.util.Masking;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -58,7 +59,7 @@ public class AlertEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "alert_rules", joinColumns = @JoinColumn(name = "alert_id"))
-    private List<TriggeredRuleRow> triggeredRules = new ArrayList<>();
+    private List<TriggeredRule> triggeredRules = new ArrayList<>();
 
     protected AlertEntity() { }
 
@@ -71,8 +72,7 @@ public class AlertEntity {
         a.score = result.score();
         a.reportedAt = claim.reportedAt();
         a.createdAt = now;
-        result.triggeredRules().forEach(r ->
-                a.triggeredRules.add(new TriggeredRuleRow(r.code(), r.weight(), r.reason())));
+        a.triggeredRules.addAll(result.triggeredRules());
         return a;
     }
 
@@ -94,5 +94,5 @@ public class AlertEntity {
 
     public Instant getCreatedAt() { return createdAt; }
 
-    public List<TriggeredRuleRow> getTriggeredRules() { return triggeredRules; }
+    public List<TriggeredRule> getTriggeredRules() { return triggeredRules; }
 }
