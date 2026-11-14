@@ -1,10 +1,10 @@
 package com.claimguard.api;
 
+import com.claimguard.alerts.AlertService;
 import com.claimguard.api.dto.AlertView;
 import com.claimguard.api.dto.PageResponse;
 import com.claimguard.domain.AlertStatus;
 import com.claimguard.domain.LineOfBusiness;
-import com.claimguard.service.AlertQueryService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/alerts")
 public class AlertController {
 
-    private final AlertQueryService queryService;
+    private final AlertService alertService;
 
-    public AlertController(AlertQueryService queryService) {
-        this.queryService = queryService;
+    public AlertController(AlertService alertService) {
+        this.alertService = alertService;
     }
 
     @GetMapping
@@ -29,6 +29,6 @@ public class AlertController {
             @RequestParam(required = false) @Min(0) Integer minScore,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
-        return queryService.search(status, lineOfBusiness, minScore, page, size);
+        return alertService.search(status, lineOfBusiness, minScore, page, size);
     }
 }

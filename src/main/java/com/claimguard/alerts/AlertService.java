@@ -1,4 +1,4 @@
-package com.claimguard.service;
+package com.claimguard.alerts;
 
 import com.claimguard.api.dto.AlertView;
 import com.claimguard.api.dto.PageResponse;
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class AlertQueryService {
+public class AlertService {
 
     private static final Sort QUEUE_ORDER = Sort.by(
             Sort.Order.desc("score"), Sort.Order.desc("reportedAt"), Sort.Order.desc("id"));
 
     private final AlertRepository alerts;
 
-    public AlertQueryService(AlertRepository alerts) {
+    public AlertService(AlertRepository alerts) {
         this.alerts = alerts;
     }
 
