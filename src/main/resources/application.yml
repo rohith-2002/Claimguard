@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: claimguard
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/claimguard}
+    username: ${DB_USER:claimguard}
+    password: ${DB_PASSWORD:claimguard}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+screening:
+  alert-threshold: 50          # alert when total score >= this
+  rules:
+    EARLY_CLAIM:               # fires when loss is <= threshold days after policy start
+      enabled: true
+      threshold: 30
+      weight: 30
+    HIGH_AMOUNT_RATIO:         # fires when claimedAmount / sumInsured >= threshold
+      enabled: true
+      threshold: 0.8
+      weight: 35
+    LATE_REPORTING:            # fires when reported > threshold days after loss
+      enabled: true
+      threshold: 15
+      weight: 20
+    REPEAT_POLICY_CLAIM:       # fires when >= threshold earlier claims on the policy in 180 days
+      enabled: true
+      threshold: 2
+      weight: 25
