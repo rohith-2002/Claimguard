@@ -105,4 +105,6 @@ Suggested audit fields: `alert_id`, `investigator`, `changed_at`, `from_status`,
 
 - The UI masks mobile values before displaying them, even if the API accidentally returns the full number.
 - The backend remains responsible for masking API responses and never logging full mobile numbers.
-- The backend PATCH endpoint and audit-table migration are part of the Spring Boot project; this folder only contains the React UI. Add the backend changes and tests to that project to complete all Task 3 requirements.
+- The `PATCH` endpoint and the append-only `alert_audit` migration are implemented in the Spring Boot
+  project alongside this UI. See the [root README](../README.md) for the backend design, configuration,
+  and test commands.
