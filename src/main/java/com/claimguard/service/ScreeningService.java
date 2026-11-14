@@ -8,7 +8,6 @@ import com.claimguard.domain.rules.FraudRule;
 import com.claimguard.persistence.AlertEntity;
 import com.claimguard.persistence.AlertRepository;
 import com.claimguard.store.ClaimHistoryStore;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -33,15 +32,13 @@ public class ScreeningService {
     private final ScreeningProperties properties;
     private final ClaimHistoryStore history;
     private final AlertRepository alerts;
-    private final Clock clock;
 
     public ScreeningService(List<FraudRule> rules, ScreeningProperties properties,
-                            ClaimHistoryStore history, AlertRepository alerts, Clock clock) {
+                            ClaimHistoryStore history, AlertRepository alerts) {
         this.rules = rules;
         this.properties = properties;
         this.history = history;
         this.alerts = alerts;
-        this.clock = clock;
     }
 
     public ScreeningResponse screen(ClaimRequest claim) {
@@ -70,7 +67,7 @@ public class ScreeningService {
             return;
         }
         try {
-            alerts.save(AlertEntity.from(claim, result, Instant.now(clock)));
+            alerts.save(AlertEntity.from(claim, result, Instant.now()));
         } catch (DataIntegrityViolationException concurrentDuplicate) {
             log.info("Alert for claimId={} already created concurrently", claim.claimId());
         }
