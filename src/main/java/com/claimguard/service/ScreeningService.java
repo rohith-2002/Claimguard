@@ -2,12 +2,17 @@ package com.claimguard.service;
 
 import com.claimguard.api.dto.ClaimRequest;
 import com.claimguard.api.dto.ScreeningResponse;
+import com.claimguard.config.ScreeningProperties;
 import com.claimguard.domain.ClaimRecord;
+import com.claimguard.domain.TriggeredRule;
+import com.claimguard.domain.rules.FraudRule;
 import com.claimguard.persistence.AlertEntity;
 import com.claimguard.persistence.AlertRepository;
 import com.claimguard.store.ClaimHistoryStore;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,21 +30,23 @@ public class ScreeningService {
 
     private static final Logger log = LoggerFactory.getLogger(ScreeningService.class);
 
-    private final ScreeningEngine engine;
+    private final List<FraudRule> rules;
+    private final ScreeningProperties properties;
     private final ClaimHistoryStore history;
     private final AlertRepository alerts;
     private final Clock clock;
 
-    public ScreeningService(ScreeningEngine engine, ClaimHistoryStore history,
-                            AlertRepository alerts, Clock clock) {
-        this.engine = engine;
+    public ScreeningService(List<FraudRule> rules, ScreeningProperties properties,
+                            ClaimHistoryStore history, AlertRepository alerts, Clock clock) {
+        this.rules = rules;
+        this.properties = properties;
         this.history = history;
         this.alerts = alerts;
         this.clock = clock;
     }
 
     public ScreeningResponse screen(ClaimRequest claim) {
-        ScreeningResponse result = engine.evaluate(claim);
+        ScreeningResponse result = evaluate(claim);
         history.record(new ClaimRecord(claim.claimId(), claim.policyNumber(), claim.vehicleRegNo(),
                 claim.providerId(), claim.reportedAt()));
         if (result.alertRaised()) {
@@ -48,6 +55,16 @@ public class ScreeningService {
         log.info("Screened claimId={} score={} alertRaised={}",
                 claim.claimId(), result.score(), result.alertRaised());
         return result;
+    }
+
+    /** Pure scoring: runs every rule and sums weights. No persistence, no side effects. */
+    private ScreeningResponse evaluate(ClaimRequest claim) {
+        List<TriggeredRule> triggered = rules.stream()
+                .map(rule -> rule.evaluate(claim))
+                .flatMap(Optional::stream)
+                .toList();
+        int score = triggered.stream().mapToInt(TriggeredRule::weight).sum();
+        return new ScreeningResponse(claim.claimId(), score, score >= properties.alertThreshold(), triggered);
     }
 
     private void persistAlertOnce(ClaimRequest claim, ScreeningResponse result) {
