@@ -1,6 +1,5 @@
 package com.claimguard.api;
 
-import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
 import java.util.TreeMap;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 
 /** Maps every client error to 400 {error, fieldErrors}. Never echoes request values back. */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> invalidBody(MethodArgumentNotValidException ex) {
@@ -30,14 +29,6 @@ public class GlobalExceptionHandler {
                 result.getResolvableErrors().forEach(e ->
                         errors.putIfAbsent(String.valueOf(result.getMethodParameter().getParameterName()),
                                 e.getDefaultMessage())));
-        return badRequest(errors);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> constraintViolation(ConstraintViolationException ex) {
-        Map<String, String> errors = new TreeMap<>();
-        ex.getConstraintViolations()
-                .forEach(v -> errors.putIfAbsent(v.getPropertyPath().toString(), v.getMessage()));
         return badRequest(errors);
     }
 
