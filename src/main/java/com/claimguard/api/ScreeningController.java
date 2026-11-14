@@ -1,8 +1,8 @@
 package com.claimguard.api;
 
-import com.claimguard.api.dto.ClaimRequest;
-import com.claimguard.api.dto.ScreeningResponse;
-import com.claimguard.service.ScreeningService;
+import com.claimguard.api.ClaimRequest;
+import com.claimguard.api.ScreeningResponse;
+import com.claimguard.screening.ScreeningService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

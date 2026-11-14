@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.claimguard.persistence.AlertRepository;
+import com.claimguard.alerts.AlertRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +34,17 @@ class AlertApiTest {
 
     /** loss 6 days after start, claimed 90% of sum insured; reportedAt decides the LATE rule. */
     private static String claimJson(String id, String lob, String reportedAt, long claimed, String mobile) {
-        String vehicle = "MOTOR".equals(lob) ? "\"vehicleRegNo\":\"KA01AB1234\"," : "";
+        String vehicle = "MOTOR".equals(lob) ? "\"vehicleRegNo\":\"" + vehicleFor(id) + "\"," : "";
         return """
                 {"claimId":"%s","policyNumber":"POL-%s","policyStartDate":"2026-01-01","sumInsured":500000,
                  "lineOfBusiness":"%s",%s"providerId":"PRV-1","claimantMobile":"%s",
                  "lossDate":"2026-01-07","reportedAt":"%s","claimedAmount":%d}
                 """.formatted(id, id, lob, vehicle, mobile, reportedAt, claimed);
+    }
+
+    /** Unique per claim so the API tests never trip REPEAT_VEHICLE across unrelated claims. */
+    private static String vehicleFor(String id) {
+        return "KA01AB" + id;
     }
 
     private void screen(String json) throws Exception {
@@ -80,7 +85,7 @@ class AlertApiTest {
     @Test
     void motorClaimWithoutVehicleRegNoReturns400() throws Exception {
         String json = claimJson("API-2", "MOTOR", "2026-02-01T10:00:00Z", 450_000, "9876543210")
-                .replace("\"vehicleRegNo\":\"KA01AB1234\",", "");
+                .replace("\"vehicleRegNo\":\"" + vehicleFor("API-2") + "\",", "");
         mvc.perform(post("/api/claims/screen").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.vehicleRegNoValid").exists());
