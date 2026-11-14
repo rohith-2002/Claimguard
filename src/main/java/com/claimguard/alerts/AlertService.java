@@ -1,11 +1,11 @@
 package com.claimguard.alerts;
 
-import com.claimguard.api.dto.AlertView;
-import com.claimguard.api.dto.PageResponse;
-import com.claimguard.domain.AlertStatus;
-import com.claimguard.domain.LineOfBusiness;
-import com.claimguard.persistence.AlertEntity;
-import com.claimguard.persistence.AlertRepository;
+import com.claimguard.api.AlertView;
+import com.claimguard.api.PageResponse;
+import com.claimguard.alerts.AlertStatus;
+import com.claimguard.alerts.LineOfBusiness;
+import com.claimguard.alerts.AlertEntity;
+import com.claimguard.alerts.AlertRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -12,17 +12,32 @@ the SIU.
 ```
 POST /api/claims/screen
         |
-  ScreeningController --> ScreeningService --> ScreeningEngine --> FraudRule(s)
-                               |                                     (EARLY_CLAIM, HIGH_AMOUNT_RATIO,
-                               |                                      LATE_REPORTING, REPEAT_POLICY_CLAIM)
+  ScreeningController --> ScreeningService --> FraudRule(s)
+                               |                 (EARLY_CLAIM, HIGH_AMOUNT_RATIO,
+                               |                  LATE_REPORTING, REPEAT_POLICY_CLAIM)
                                |--> ClaimHistoryStore (in-memory; Redis in Task 2)
                                '--> AlertRepository --> PostgreSQL (alerts, alert_rules)
-GET /api/alerts --> AlertController --> AlertQueryService --> AlertRepository
+GET /api/alerts --> AlertController --> AlertService --> AlertRepository
 ```
 
-- `ScreeningEngine` is pure (rules + weights, no I/O); `ScreeningService` adds history and persistence.
+- `ScreeningService` scores the rules (weights, no I/O) and adds history and persistence.
 - Rules extend `ConfiguredRule`, which reads `enabled / threshold / weight` from `screening.rules.<CODE>`.
 - Time windows use the claim's `reportedAt` (event time), never the wall clock, so replays are deterministic.
+
+### Packages
+
+```
+com.claimguard
+├── ClaimguardApplication.java
+├── ScreeningProperties.java
+├── api/        ScreeningController, AlertController, ApiExceptionHandler,
+│               ClaimRequest, ScreeningResponse, AlertView, PageResponse
+├── rules/      FraudRule, ConfiguredRule, EarlyClaimRule, HighAmountRatioRule,
+│               LateReportingRule, RepeatPolicyClaimRule, TriggeredRule
+├── screening/  ScreeningService, ClaimHistoryStore, InMemoryClaimHistoryStore
+└── alerts/     AlertEntity, AlertRepository, AlertService,
+                AlertStatus, LineOfBusiness, Masking
+```
 
 ## Run
 
@@ -95,7 +110,7 @@ mvn test -Pintegration    # also runs @Tag("integration") tests (Docker/Testcont
 
 ```bash
 mvn -q test-compile exec:java -Dexec.classpathScope=test \
-    -Dexec.mainClass=com.claimguard.tools.ClaimDataGenerator     # seed 42 -> data/claims.jsonl
+    -Dexec.mainClass=com.claimguard.screening.ClaimDataGenerator     # seed 42 -> data/claims.jsonl
 mvn test -Dtest=DatasetScreeningTest                              # prints the table
 ```
 

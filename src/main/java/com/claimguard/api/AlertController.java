@@ -1,10 +1,10 @@
 package com.claimguard.api;
 
 import com.claimguard.alerts.AlertService;
-import com.claimguard.api.dto.AlertView;
-import com.claimguard.api.dto.PageResponse;
-import com.claimguard.domain.AlertStatus;
-import com.claimguard.domain.LineOfBusiness;
+import com.claimguard.api.AlertView;
+import com.claimguard.api.PageResponse;
+import com.claimguard.alerts.AlertStatus;
+import com.claimguard.alerts.LineOfBusiness;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,9 +1,9 @@
 package com.claimguard;
 
-import com.claimguard.api.dto.ClaimRequest;
-import com.claimguard.config.ScreeningProperties;
-import com.claimguard.config.ScreeningProperties.RuleConfig;
-import com.claimguard.domain.LineOfBusiness;
+import com.claimguard.api.ClaimRequest;
+import com.claimguard.ScreeningProperties;
+import com.claimguard.ScreeningProperties.RuleConfig;
+import com.claimguard.alerts.LineOfBusiness;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
