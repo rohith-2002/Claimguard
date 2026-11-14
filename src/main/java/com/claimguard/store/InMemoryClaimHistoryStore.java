@@ -1,6 +1,6 @@
 package com.claimguard.store;
 
-import com.claimguard.domain.ClaimRecord;
+import com.claimguard.api.dto.ClaimRequest;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +21,7 @@ public class InMemoryClaimHistoryStore implements ClaimHistoryStore {
     }
 
     @Override
-    public void record(ClaimRecord claim) {
+    public void record(ClaimRequest claim) {
         byPolicy.computeIfAbsent(claim.policyNumber(), k -> new ConcurrentHashMap<>())
                 .putIfAbsent(claim.claimId(), claim.reportedAt());
     }

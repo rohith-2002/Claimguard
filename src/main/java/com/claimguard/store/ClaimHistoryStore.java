@@ -1,6 +1,6 @@
 package com.claimguard.store;
 
-import com.claimguard.domain.ClaimRecord;
+import com.claimguard.api.dto.ClaimRequest;
 import java.time.Instant;
 
 public interface ClaimHistoryStore {
@@ -9,5 +9,5 @@ public interface ClaimHistoryStore {
     int countPolicyClaims(String policyNumber, Instant from, Instant to, String excludeClaimId);
 
     /** Idempotent: recording the same claimId again must not change any count. */
-    void record(ClaimRecord claim);
+    void record(ClaimRequest claim);
 }

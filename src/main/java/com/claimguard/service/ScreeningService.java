@@ -3,7 +3,6 @@ package com.claimguard.service;
 import com.claimguard.api.dto.ClaimRequest;
 import com.claimguard.api.dto.ScreeningResponse;
 import com.claimguard.config.ScreeningProperties;
-import com.claimguard.domain.ClaimRecord;
 import com.claimguard.domain.TriggeredRule;
 import com.claimguard.domain.rules.FraudRule;
 import com.claimguard.persistence.AlertEntity;
@@ -47,8 +46,7 @@ public class ScreeningService {
 
     public ScreeningResponse screen(ClaimRequest claim) {
         ScreeningResponse result = evaluate(claim);
-        history.record(new ClaimRecord(claim.claimId(), claim.policyNumber(), claim.vehicleRegNo(),
-                claim.providerId(), claim.reportedAt()));
+        history.record(claim);
         if (result.alertRaised()) {
             persistAlertOnce(claim, result);
         }

@@ -3,7 +3,6 @@ package com.claimguard.domain.rules;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.claimguard.Fixtures;
-import com.claimguard.domain.ClaimRecord;
 import com.claimguard.domain.TriggeredRule;
 import com.claimguard.store.InMemoryClaimHistoryStore;
 import java.time.Duration;
@@ -27,7 +26,7 @@ class RepeatPolicyClaimRuleTest {
     }
 
     private void earlierClaim(String claimId, Instant reportedAt) {
-        store.record(new ClaimRecord(claimId, "POL-X", null, "GAR-1", reportedAt));
+        store.record(Fixtures.claim(claimId).policy("POL-X").reportedAt(reportedAt).build());
     }
 
     private Optional<TriggeredRule> evaluateCurrent() {
@@ -89,8 +88,8 @@ class RepeatPolicyClaimRuleTest {
 
     @Test
     void otherPoliciesAreIgnored() {
-        store.record(new ClaimRecord("A", "POL-OTHER", null, "GAR-1", NOW.minus(Duration.ofDays(10))));
-        store.record(new ClaimRecord("B", "POL-OTHER", null, "GAR-1", NOW.minus(Duration.ofDays(5))));
+        store.record(Fixtures.claim("A").policy("POL-OTHER").reportedAt(NOW.minus(Duration.ofDays(10))).build());
+        store.record(Fixtures.claim("B").policy("POL-OTHER").reportedAt(NOW.minus(Duration.ofDays(5))).build());
         assertThat(evaluateCurrent()).isEmpty();
     }
 }
