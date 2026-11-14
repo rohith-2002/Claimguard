@@ -1,5 +1,9 @@
 import type { AlertFilters, AlertPage, ClaimAlert, DispositionRequest } from "./types";
 
+// Default to a relative base so requests go through the Vite proxy (same origin, no CORS).
+// Set VITE_API_BASE_URL only when the UI is served from somewhere without the proxy.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
+
 function maskMobile(value: string): string {
   if (!value) return "—";
   if (value.includes("*")) return value;
@@ -21,7 +25,7 @@ export async function getAlerts(filters: AlertFilters): Promise<AlertPage> {
   if (filters.lineOfBusiness) params.set("lineOfBusiness", filters.lineOfBusiness);
   if (filters.minScore) params.set("minScore", filters.minScore);
 
-  const response = await fetch(`http://localhost:8080/api/alerts?${params.toString()}`);
+  const response = await fetch(`${API_BASE}/api/alerts?${params.toString()}`);
   if (!response.ok) throw new Error(`Could not load alerts (${response.status})`);
 
   const data = await response.json();
@@ -36,7 +40,7 @@ export async function getAlerts(filters: AlertFilters): Promise<AlertPage> {
 }
 
 export async function updateAlert(id: number, body: DispositionRequest): Promise<void> {
-  const response = await fetch(`http://localhost:8080/api/alerts/${id}`, {
+  const response = await fetch(`${API_BASE}/api/alerts/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)

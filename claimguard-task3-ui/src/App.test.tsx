@@ -54,6 +54,7 @@ describe("investigator queue", () => {
       const calls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls;
       const patchCall = calls.find((call) => call[1]?.method === "PATCH");
       expect(patchCall).toBeDefined();
+      if (!patchCall) throw new Error("no PATCH call was made");
       expect(JSON.parse(patchCall[1].body)).toEqual({
         status: "CONFIRMED_FRAUD",
         note: "Evidence reviewed",
