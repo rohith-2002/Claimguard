@@ -90,6 +90,11 @@ public class AlertEntity {
 
     public AlertStatus getStatus() { return status; }
 
+    /** Close an OPEN alert. Callers must enforce the OPEN precondition. */
+    public void close(AlertStatus newStatus) {
+        this.status = newStatus;
+    }
+
     public Instant getReportedAt() { return reportedAt; }
 
     public Instant getCreatedAt() { return createdAt; }

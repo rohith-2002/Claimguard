@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.server.ResponseStatusException;
 
 /** Maps every client error to 400 {error, fieldErrors}. Never echoes request values back. */
 @RestControllerAdvice
@@ -40,6 +41,14 @@ public class ApiExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> unreadable(HttpMessageNotReadableException ex) {
         return badRequest(Map.of("body", "malformed JSON or invalid value"));
+    }
+
+    /** 404/409 (e.g. an already-closed alert) keep the same {error, fieldErrors} shape. */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> status(ResponseStatusException ex) {
+        String reason = ex.getReason() == null ? ex.getStatusCode().toString() : ex.getReason();
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(Map.of("error", reason, "fieldErrors", Map.of()));
     }
 
     private static ResponseEntity<Map<String, Object>> badRequest(Map<String, String> fieldErrors) {
