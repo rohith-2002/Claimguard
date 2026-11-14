@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.claimguard.api.ClaimRequest;
 import com.claimguard.api.ScreeningResponse;
-import com.claimguard.screening.ScreeningService;
-import com.claimguard.screening.ClaimDataGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
@@ -24,8 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 class DatasetScreeningTest {
 
     private static final Path FILE = Path.of("data/claims.jsonl");
-    private static final List<String> TASK1_RULES =
-            List.of("EARLY_CLAIM", "HIGH_AMOUNT_RATIO", "LATE_REPORTING", "REPEAT_POLICY_CLAIM");
+    private static final List<String> ALL_RULES = List.of(
+            "EARLY_CLAIM", "HIGH_AMOUNT_RATIO", "LATE_REPORTING", "REPEAT_POLICY_CLAIM",
+            "REPEAT_VEHICLE", "PROVIDER_SPIKE");
 
     @Autowired ScreeningService service;
     @Autowired ObjectMapper mapper;
@@ -60,15 +59,13 @@ class DatasetScreeningTest {
 
         System.out.printf("%nclaims screened: %d, alerts raised: %d%n", claims, alerts);
         System.out.printf("%-22s %6s %9s %14s%n", "rule", "hits", "injected", "injected&hit");
-        for (String rule : TASK1_RULES) {
+        for (String rule : ALL_RULES) {
             System.out.printf("%-22s %6d %9d %14d%n", rule, hits.getOrDefault(rule, 0),
                     injected.getOrDefault(rule, 0), injectedAndHit.getOrDefault(rule, 0));
         }
-        System.out.printf("(Task 2 patterns injected: REPEAT_VEHICLE=%d, PROVIDER_SPIKE=%d)%n",
-                injected.getOrDefault("REPEAT_VEHICLE", 0), injected.getOrDefault("PROVIDER_SPIKE", 0));
 
         assertThat(claims).isGreaterThanOrEqualTo(500);
-        TASK1_RULES.forEach(rule -> assertThat(injectedAndHit.getOrDefault(rule, 0))
+        ALL_RULES.forEach(rule -> assertThat(injectedAndHit.getOrDefault(rule, 0))
                 .as("every injected %s claim should be detected", rule)
                 .isEqualTo(injected.getOrDefault(rule, 0)));
     }

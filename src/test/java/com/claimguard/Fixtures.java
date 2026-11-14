@@ -24,7 +24,9 @@ public final class Fixtures {
                 "EARLY_CLAIM", new RuleConfig(true, new BigDecimal(earlyThreshold), 30),
                 "HIGH_AMOUNT_RATIO", new RuleConfig(true, new BigDecimal("0.8"), 35),
                 "LATE_REPORTING", new RuleConfig(true, new BigDecimal("15"), 20),
-                "REPEAT_POLICY_CLAIM", new RuleConfig(true, new BigDecimal("2"), 25)));
+                "REPEAT_POLICY_CLAIM", new RuleConfig(true, new BigDecimal("2"), 25),
+                "REPEAT_VEHICLE", new RuleConfig(true, new BigDecimal("1"), 40),
+                "PROVIDER_SPIKE", new RuleConfig(true, new BigDecimal("10"), 30)));
     }
 
     public static ScreeningProperties propsWithEarlyDisabled() {
@@ -62,12 +64,16 @@ public final class Fixtures {
         private Builder(String claimId) {
             this.claimId = claimId;
             this.policy = "POL-" + claimId;
+            // Unique per claim so unrelated claims never share a vehicle and trip REPEAT_VEHICLE.
+            this.vehicle = "KA01AB-" + claimId;
         }
 
         public Builder policy(String v) { this.policy = v; return this; }
         public Builder policyStart(LocalDate v) { this.policyStart = v; return this; }
         public Builder sumInsured(String v) { this.sumInsured = new BigDecimal(v); return this; }
         public Builder lob(LineOfBusiness v) { this.lob = v; return this; }
+        public Builder vehicle(String v) { this.vehicle = v; return this; }
+        public Builder provider(String v) { this.provider = v; return this; }
         public Builder mobile(String v) { this.mobile = v; return this; }
         public Builder loss(LocalDate v) { this.loss = v; return this; }
         public Builder reportedAt(Instant v) { this.reportedAt = v; return this; }

@@ -25,7 +25,7 @@ claimguard:
   kafka:
     enabled: true            # false disables the listener and topic beans (used by unit tests)
   history:
-    store: memory             # Redis history store is not implemented yet
+    store: redis             # redis | memory
 
 screening:
   alert-threshold: 50        # alert when total score >= this
