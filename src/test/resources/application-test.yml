@@ -5,4 +5,10 @@ spring:
     password: ""
   jpa:
     hibernate:
-      ddl-auto: none   # schema comes from the Flyway migration; main profile uses validate
+      ddl-auto: none
+
+claimguard:
+  kafka:
+    enabled: false
+  history:
+    store: memory

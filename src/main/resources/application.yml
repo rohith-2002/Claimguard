@@ -9,23 +9,48 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: claimguard
+      auto-offset-reset: earliest
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      repositories:
+        enabled: false       # no Spring Data Redis repositories; avoids scanning clashes with JPA
+
+claimguard:
+  kafka:
+    enabled: true            # false disables the listener and topic beans (used by unit tests)
+  history:
+    store: memory             # Redis history store is not implemented yet
 
 screening:
-  alert-threshold: 50          # alert when total score >= this
+  alert-threshold: 50        # alert when total score >= this
   rules:
-    EARLY_CLAIM:               # fires when loss is <= threshold days after policy start
+    EARLY_CLAIM:             # fires when loss is <= threshold days after policy start
       enabled: true
       threshold: 30
       weight: 30
-    HIGH_AMOUNT_RATIO:         # fires when claimedAmount / sumInsured >= threshold
+    HIGH_AMOUNT_RATIO:       # fires when claimedAmount / sumInsured >= threshold
       enabled: true
       threshold: 0.8
       weight: 35
-    LATE_REPORTING:            # fires when reported > threshold days after loss
+    LATE_REPORTING:          # fires when reported > threshold days after loss
       enabled: true
       threshold: 15
       weight: 20
-    REPEAT_POLICY_CLAIM:       # fires when >= threshold earlier claims on the policy in 180 days
+    REPEAT_POLICY_CLAIM:     # fires when >= threshold earlier claims on the policy in 180 days
       enabled: true
       threshold: 2
       weight: 25
+    REPEAT_VEHICLE:          # fires when the vehicle has >= threshold claims on OTHER policies in 90 days
+      enabled: true
+      threshold: 1
+      weight: 40
+    PROVIDER_SPIKE:          # fires when the provider has MORE than threshold claims in 7 days
+      enabled: true
+      threshold: 10
+      weight: 30

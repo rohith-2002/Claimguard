@@ -32,18 +32,23 @@ public class ScreeningService {
     private final ScreeningProperties properties;
     private final ClaimHistoryStore history;
     private final AlertRepository alerts;
+    private final StreamStats stats;
 
     public ScreeningService(List<FraudRule> rules, ScreeningProperties properties,
-                            ClaimHistoryStore history, AlertRepository alerts) {
+                            ClaimHistoryStore history, AlertRepository alerts, StreamStats stats) {
         this.rules = rules;
         this.properties = properties;
         this.history = history;
         this.alerts = alerts;
+        this.stats = stats;
     }
 
     public ScreeningResponse screen(ClaimRequest claim) {
         ScreeningResponse result = evaluate(claim);
-        history.record(claim);
+        boolean firstTime = history.record(claim);
+        if (!firstTime) {
+            stats.duplicateSkipped();
+        }
         if (result.alertRaised()) {
             persistAlertOnce(claim, result);
         }
@@ -68,6 +73,7 @@ public class ScreeningService {
         }
         try {
             alerts.save(AlertEntity.from(claim, result, Instant.now()));
+            stats.alertCreated();
         } catch (DataIntegrityViolationException concurrentDuplicate) {
             log.info("Alert for claimId={} already created concurrently", claim.claimId());
         }
